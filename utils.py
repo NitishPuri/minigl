@@ -8,9 +8,13 @@ BLACK = [0, 0, 0]
 WHITE = [1, 1, 1]
 
 
+def createImage(width, height):
+    return np.zeros((width, height, 3))
+
+
 def saveImage(filename, image):
     image = np.transpose(image, axes=(1, 0, 2))
     image = np.flipud(image)
     if image.dtype == np.float64:
         image = (image * 255).astype(np.uint8)
-    io.imsave("out/2_mesh_wireframe.jpg", image)
+    io.imsave(filename, image)
