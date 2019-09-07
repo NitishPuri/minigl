@@ -1,14 +1,12 @@
 from objreader import *
 from minigl import *
-from skimage import io
-
 import utils
 
 width = 800
 height = 800
 padding = 10
 
-image = np.zeros((width, height, 3))
+image = utils.createImage(width, height)
 m = Model("obj/african_head.obj")
 
 
