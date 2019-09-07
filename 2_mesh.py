@@ -2,7 +2,7 @@ from objreader import *
 from minigl import *
 from skimage import io
 
-import constants
+import utils
 
 width = 800
 height = 800
@@ -18,10 +18,8 @@ def map_to_screen(v):
 
 for i, f in enumerate(m.faces):
     v = [map_to_screen(m.vertices[f[i][0]]) for i in range(3)]
-    line(v[0], v[1], image, constants.RED)
-    line(v[1], v[2], image, constants.RED)
-    line(v[0], v[2], image, constants.RED)
+    line(v[0], v[1], image, utils.WHITE)
+    line(v[1], v[2], image, utils.WHITE)
+    line(v[0], v[2], image, utils.WHITE)
 
-image = np.transpose(image, axes=(1, 0, 2))
-image = np.flipud(image)
-io.imsave("out/2_mesh_wireframe.jpg", image)
+utils.saveImage("out/2_mesh_wireframe.jpg", image)
