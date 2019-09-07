@@ -2,6 +2,10 @@ import numpy as np
 
 
 def pixel(p, image, color):
+    # During debugging only
+    if p[0] < 0 or p[1] < 0 or p[0] >= image.shape[0] or p[1] >= image.shape[1]:
+        print("ERROR :: Trying to paint pixel ", p)
+        return
     image[int(p[0]), int(p[1])] = color
 
 
