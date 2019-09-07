@@ -2,7 +2,7 @@ import numpy as np
 
 
 def pixel(p, image, color):
-    image[p[0]][p[1]] = color
+    image[int(p[0]), int(p[1])] = color
 
 
 def aligned_rectangle(p, q, image, color):
@@ -55,8 +55,8 @@ def line_v3(a, b, image, color):
 
 
 def line(a, b, image, color):
-    a = np.asarray(a)
-    b = np.asarray(b)
+    a = np.asarray(a[:2])
+    b = np.asarray(b[:2])
     d = b - a
     steep = False
     if(np.abs(d[0]) < np.abs(d[1])):

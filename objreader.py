@@ -15,7 +15,7 @@ class Model:
                     v = [float(x) for x in data[1:]]
                     self.vertices.append(v)
                 if line.startswith('f '):   # face
-                    f = [x.split('/') for x in data[1:]]
+                    f = [[int(i) - 1 for i in x.split('/')] for x in data[1:]]
                     self.faces.append(f)
 
         print("Read :: ", self.filename)
