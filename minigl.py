@@ -1,5 +1,4 @@
 import numpy as np
-from skimage import io
 
 
 def pixel(p, image, color):
@@ -76,7 +75,3 @@ def line(a, b, image, color):
         if error > 0.5:
             y += 1 if b[1] > a[1] else -1
             error -= 1
-
-
-def saveImage(filename, image):
-    io.imsave(filename, image)

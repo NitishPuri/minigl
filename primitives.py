@@ -11,4 +11,4 @@ line((20, 25), (100, 60), image, (0, 0, 1))
 line((100, 25), (20, 60), image, (0, 0, 1))
 pixel((5, 5), image, (1, 1, 1))
 
-saveImage("test2.jpg", image)
+io.imsave("test2.jpg", image)
