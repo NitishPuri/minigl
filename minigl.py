@@ -37,17 +37,17 @@ def line(a, b, image, color):
 
 
 def scan_x(x1, x2, y, image, color):
-    image[int(x1):int(x2), y] = color
+    image[int(x1):int(x2+0.5), y] = color
 
 
 def triangle_line_sweep(v, image, color):
     v = v[v[:, 1].argsort()]
-    a = np.array(v[0])
-    b = np.array(v[1])
-    c = np.array(v[2])
+    a = np.array(v[0], dtype=np.int32)
+    b = np.array(v[1], dtype=np.int32)
+    c = np.array(v[2], dtype=np.int32)
     total_height = max(c[1] - a[1], 1)
     seg_height = max(b[1] - a[1], 1)
-    for y in range(int(a[1]), int(b[1]+0.5)+1):
+    for y in range(a[1], b[1]+1):
         alpha = (y - a[1]) / total_height
         beta = (y - a[1]) / seg_height
         x1 = a[0] + (c[0] - a[0]) * alpha
@@ -56,7 +56,7 @@ def triangle_line_sweep(v, image, color):
             x1, x2 = x2, x1
         scan_x(x1, x2, y, image, color)
     seg_height = max(c[1] - b[1], 1)
-    for y in range(int(b[1]), int(c[1])+1):
+    for y in range(b[1], c[1]+1):
         alpha = (y - a[1]) / total_height
         beta = (y - b[1]) / seg_height
         x1 = a[0] + (c[0] - a[0]) * alpha
@@ -91,11 +91,34 @@ def triangle(v, image, color):
     T = (v[:-1, :2] - v[-1, :2]).T
     T_inv = np.linalg.inv(T)
 
-    for x in range(int(bbmin[0]), int(bbmax[0]+0.5) + 1):
-        for y in range(int(bbmin[1]), int(bbmax[1]+0.5) + 1):
-            bc = np.dot(T_inv, ([x, y] - v[-1, :2]))
-            bc.resize(3)
-            bc[-1] = 1 - bc.sum()
-            if np.logical_and(bc >= 0, bc <= 1).all():
-                pixel([x, y], image, color)
-                # pixel([x, y], image, bc)
+    # image[int(bbmin[0]):int(bbmax[0]+0.5) + 1, int(bbmin[1]): int(bbmax[1]+0.5) + 1] = \
+    #     color
+    bbmin = np.array(bbmin, dtype=np.uint64)
+    bbmax = np.array(bbmax + 0.5, dtype=np.uint64) + 1
+    x = range(bbmin[0], bbmax[0])
+    y = range(bbmin[1], bbmax[1])
+    u, v = np.meshgrid(x, y, sparse=False)
+    uv = np.array([u, v])
+    uv = uv.transpose(1, 2, 0)
+    bcd = uv - v[-1, :2]
+    bc = np.tensordot(T_inv, bcd, axes=(1, 2)).transpose(1, 2, 0)
+    # t = np.logical_and(np.greater_equal(
+    #     bc[:, :, 0], 0), np.greater_equal(bc[:, :, 1], 0))
+
+    bcw = np.zeros((bc.shape[0], bc.shape[1], 3))
+    bcw[:, :, :2] = bc
+    bcw[:, :, 2] = 1 - bc.sum(axis=-1)
+
+    bcw = bcw.transpose(1, 0, 2)
+
+    image[bbmin[0]:bbmax[0], bbmin[1]: bbmax[1]] = bcw
+
+    # Loop version ~ 20s
+    # for x in range(int(bbmin[0]), int(bbmax[0]+0.5) + 1):
+    #     for y in range(int(bbmin[1]), int(bbmax[1]+0.5) + 1):
+    #         bc = np.dot(T_inv, ([x, y] - v[-1, :2]))
+    #         bc.resize(3)
+    #         bc[-1] = 1 - bc.sum()
+    #         if np.logical_and(bc >= 0, bc <= 1).all():
+    #             pixel([x, y], image, color)
+    #             # pixel([x, y], image, bc)
