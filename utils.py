@@ -8,6 +8,9 @@ BLACK = [0, 0, 0]
 WHITE = [1, 1, 1]
 
 
+def RANDOM(): return np.random.randint(0, 255, (1, 3))
+
+
 def createImage(width, height):
     return np.zeros((width, height, 3))
 

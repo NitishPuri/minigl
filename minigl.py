@@ -40,7 +40,7 @@ def scan_x(x1, x2, y, image, color):
     image[int(x1):int(x2), y] = color
 
 
-def triangle(a, b, c, image, color):
+def triangle_line_sweep(a, b, c, image, color):
     a = np.array(a, dtype=np.int32)
     b = np.array(b, dtype=np.int32)
     c = np.array(c, dtype=np.int32)
@@ -50,6 +50,7 @@ def triangle(a, b, c, image, color):
         a, c = c, a
     if b[1] > c[1]:
         a, c = c, a
+    # v[v[:,1].argsort()]
     total_height = c[1] - a[1]
     seg_height = b[1] - a[1]
     if seg_height == 0:
@@ -73,3 +74,39 @@ def triangle(a, b, c, image, color):
         if x1 > x2:
             x1, x2 = x2, x1
         scan_x(x1, x2, y, image, color)
+
+
+def barycentric(a, b, c, p):
+    """
+        https://en.wikipedia.org/wiki/Barycentric_coordinate_system
+        ax - cx    bx - cx
+        ay - cy    by - cy
+    """
+    v = np.array([a, b, c])
+    T = (v[:-1, :2] - v[-1, :2]).T
+    T_inv = np.linalg.inv(T)
+    bc = np.dot(T_inv, (p[:2] - v[-1, :2]))
+    bc[-1] = 1 - bc.sum()
+    return bc
+
+
+def triangle(a, b, c, image, color):
+    """
+    Triangle rasterization using barycentric coordinates
+    """
+    v = np.array([a, b, c], dtype=np.int32)
+    bbmin = v.min(axis=0)
+    bbmax = v.max(axis=0)
+
+    # precompute matrix for finding barycentric coordinates.
+    T = (v[:-1, :2] - v[-1, :2]).T
+    T_inv = np.linalg.inv(T)
+
+    for x in range(bbmin[0], bbmax[0] + 1):
+        for y in range(bbmin[1], bbmax[1] + 1):
+            bc = np.dot(T_inv, ([x, y] - v[-1, :2]))
+            bc.resize(3)
+            bc[-1] = 1 - bc.sum()
+            if np.logical_and(bc >= 0, bc <= 1).all():
+                pixel([x, y], image, color)
+                # pixel([x, y], image, bc)
