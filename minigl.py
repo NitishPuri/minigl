@@ -80,11 +80,10 @@ def barycentric(a, b, c, p):
     return bc
 
 
-def triangle(a, b, c, image, color):
+def triangle(v, image, color):
     """
     Triangle rasterization using barycentric coordinates
     """
-    v = np.array([a, b, c], dtype=np.int32)
     bbmin = v.min(axis=0)
     bbmax = v.max(axis=0)
 
@@ -92,8 +91,8 @@ def triangle(a, b, c, image, color):
     T = (v[:-1, :2] - v[-1, :2]).T
     T_inv = np.linalg.inv(T)
 
-    for x in range(bbmin[0], bbmax[0] + 1):
-        for y in range(bbmin[1], bbmax[1] + 1):
+    for x in range(int(bbmin[0]), int(bbmax[0]+0.5) + 1):
+        for y in range(int(bbmin[1]), int(bbmax[1]+0.5) + 1):
             bc = np.dot(T_inv, ([x, y] - v[-1, :2]))
             bc.resize(3)
             bc[-1] = 1 - bc.sum()
