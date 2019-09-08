@@ -3,9 +3,6 @@ from minigl import *
 import utils
 from gui import MainWindow
 
-import tkinter
-from PIL import Image, ImageTk
-
 width = 800
 height = 800
 padding = 10
