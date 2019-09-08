@@ -19,7 +19,7 @@ if __name__ == "__main__":
     image = utils.createImage(width, height)
     m = Model("obj/african_head.obj")
     timeend = time.perf_counter()
-    print("Read model :: ", (timeend - timestart), "ms")
+    print("Read model :: ", (timeend - timestart), "s")
 
     timestart = time.perf_counter()
 
@@ -29,12 +29,12 @@ if __name__ == "__main__":
         line(v[1], v[2], image, utils.WHITE)
         line(v[0], v[2], image, utils.WHITE)
     timeend = time.perf_counter()
-    print("Render image :: ", (timeend - timestart), "ms")
+    print("Render image :: ", (timeend - timestart), "s")
 
     timestart = time.perf_counter()
     utils.saveImage("out/2_mesh_wireframe.jpg", image)
     timeend = time.perf_counter()
-    print("Save to file :: ", (timeend - timestart), "ms")
+    print("Save to file :: ", (timeend - timestart), "s")
 
     window = MainWindow(width, height)
     window.showImage(image)

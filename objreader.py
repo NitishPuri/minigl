@@ -19,5 +19,5 @@ class Model:
                     self.faces.append(f)
 
         print("Read :: ", self.filename)
-        print("# vertices = ", len(self.vertices))
-        print("# faces = ", len(self.faces))
+        print("#vertices = ", len(self.vertices))
+        print("#faces = ", len(self.faces))
