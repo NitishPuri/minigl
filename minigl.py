@@ -37,13 +37,13 @@ def line(a, b, image, color):
 
 
 def scan_x(x1, x2, y, image, color):
-    image[x1:x2, y] = color
+    image[int(x1):int(x2), y] = color
 
 
 def triangle(a, b, c, image, color):
-    a = np.array(a)
-    b = np.array(b)
-    c = np.array(c)
+    a = np.array(a, dtype=np.int32)
+    b = np.array(b, dtype=np.int32)
+    c = np.array(c, dtype=np.int32)
     if a[1] > b[1]:
         a, b = b, a
     if a[1] > c[1]:
@@ -52,6 +52,8 @@ def triangle(a, b, c, image, color):
         a, c = c, a
     total_height = c[1] - a[1]
     seg_height = b[1] - a[1]
+    if seg_height == 0:
+        seg_height = 1
     for y in range(a[1], b[1]+1):
         alpha = (y - a[1]) / total_height
         beta = (y - a[1]) / seg_height
@@ -61,7 +63,9 @@ def triangle(a, b, c, image, color):
             x1, x2 = x2, x1
         scan_x(x1, x2, y, image, color)
     seg_height = c[1] - b[1]
-    for y in range(b[1], c[1]):
+    if seg_height == 0:
+        seg_height = 1
+    for y in range(b[1], c[1]+1):
         alpha = (y - a[1]) / total_height
         beta = (y - b[1]) / seg_height
         x1 = a[0] + (c[0] - a[0]) * alpha
