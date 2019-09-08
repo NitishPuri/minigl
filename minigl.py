@@ -40,22 +40,14 @@ def scan_x(x1, x2, y, image, color):
     image[int(x1):int(x2), y] = color
 
 
-def triangle_line_sweep(a, b, c, image, color):
-    a = np.array(a, dtype=np.int32)
-    b = np.array(b, dtype=np.int32)
-    c = np.array(c, dtype=np.int32)
-    if a[1] > b[1]:
-        a, b = b, a
-    if a[1] > c[1]:
-        a, c = c, a
-    if b[1] > c[1]:
-        a, c = c, a
-    # v[v[:,1].argsort()]
-    total_height = c[1] - a[1]
-    seg_height = b[1] - a[1]
-    if seg_height == 0:
-        seg_height = 1
-    for y in range(a[1], b[1]+1):
+def triangle_line_sweep(v, image, color):
+    v = v[v[:, 1].argsort()]
+    a = np.array(v[0])
+    b = np.array(v[1])
+    c = np.array(v[2])
+    total_height = max(c[1] - a[1], 1)
+    seg_height = max(b[1] - a[1], 1)
+    for y in range(int(a[1]), int(b[1]+0.5)+1):
         alpha = (y - a[1]) / total_height
         beta = (y - a[1]) / seg_height
         x1 = a[0] + (c[0] - a[0]) * alpha
@@ -63,10 +55,8 @@ def triangle_line_sweep(a, b, c, image, color):
         if x1 > x2:
             x1, x2 = x2, x1
         scan_x(x1, x2, y, image, color)
-    seg_height = c[1] - b[1]
-    if seg_height == 0:
-        seg_height = 1
-    for y in range(b[1], c[1]+1):
+    seg_height = max(c[1] - b[1], 1)
+    for y in range(int(b[1]), int(c[1])+1):
         alpha = (y - a[1]) / total_height
         beta = (y - b[1]) / seg_height
         x1 = a[0] + (c[0] - a[0]) * alpha
