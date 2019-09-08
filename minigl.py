@@ -55,11 +55,11 @@ def triangle(a, b, c, image, color):
         B = a + (b - a) * beta
         pixel(A, image, color)
         pixel(B, image, color)
-    # seg_height = c[1] - b[1]
-    # for y in range(b[1], c[1]):
-    #     alpha = (y - a[1]) / total_height
-    #     beta = (y - b[1]) / seg_height
-    #     A = a + (c - a) * alpha
-    #     B = a + (c - b) * beta
-    #     pixel(A, image, utils.RED)
-    #     pixel(B, image, utils.GREEN)
+    seg_height = c[1] - b[1]
+    for y in range(b[1], c[1]):
+        alpha = (y - a[1]) / total_height
+        beta = (y - b[1]) / seg_height
+        A = a + (c - a) * alpha
+        B = b + (c - b) * beta
+        pixel(A, image, color)
+        pixel(B, image, color)
