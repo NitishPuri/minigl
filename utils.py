@@ -1,11 +1,11 @@
 import numpy as np
 from skimage import io
 
-RED = [1, 0, 0]
-GREEN = [0, 1, 0]
-BLUE = [0, 0, 1]
-BLACK = [0, 0, 0]
-WHITE = [1, 1, 1]
+RED = np.array([1, 0, 0])
+GREEN = np.array([0, 1, 0])
+BLUE = np.array([0, 0, 1])
+BLACK = np.array([0, 0, 0])
+WHITE = np.array([1, 1, 1])
 
 
 def RANDOM(): return np.random.randint(0, 255, (1, 3))
