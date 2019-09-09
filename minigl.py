@@ -80,19 +80,17 @@ def barycentric(a, b, c, p):
     return bc
 
 
-def triangle(v, image, color):
+def triangle(vert, image, color):
     """
     Triangle rasterization using barycentric coordinates
     """
-    bbmin = v.min(axis=0)
-    bbmax = v.max(axis=0)
+    bbmin = vert.min(axis=0)
+    bbmax = vert.max(axis=0)
 
     # precompute matrix for finding barycentric coordinates.
-    T = (v[:-1, :2] - v[-1, :2]).T
+    T = (vert[:-1, :2] - vert[-1, :2]).T
     T_inv = np.linalg.inv(T)
 
-    # image[int(bbmin[0]):int(bbmax[0]+0.5) + 1, int(bbmin[1]): int(bbmax[1]+0.5) + 1] = \
-    #     color
     bbmin = np.array(bbmin, dtype=np.uint64)
     bbmax = np.array(bbmax + 0.5, dtype=np.uint64) + 1
     x = range(bbmin[0], bbmax[0])
@@ -100,25 +98,18 @@ def triangle(v, image, color):
     u, v = np.meshgrid(x, y, sparse=False)
     uv = np.array([u, v])
     uv = uv.transpose(1, 2, 0)
-    bcd = uv - v[-1, :2]
+    bcd = uv - vert[-1, :2]
     bc = np.tensordot(T_inv, bcd, axes=(1, 2)).transpose(1, 2, 0)
-    # t = np.logical_and(np.greater_equal(
-    #     bc[:, :, 0], 0), np.greater_equal(bc[:, :, 1], 0))
+    t = np.logical_and(np.all(np.greater_equal(
+        bc[:, :], 0), axis=-1), np.less_equal(bc.sum(axis=-1), 1))
 
-    bcw = np.zeros((bc.shape[0], bc.shape[1], 3))
-    bcw[:, :, :2] = bc
-    bcw[:, :, 2] = 1 - bc.sum(axis=-1)
+    # bcw = np.zeros((bc.shape[0], bc.shape[1], 3))
+    # bcw[:, :, :2] = bc
+    # bcw[:, :, 2] = 1 - bc.sum(axis=-1)
+    # bcw = bcw.transpose(1, 0, 2)
 
-    bcw = bcw.transpose(1, 0, 2)
+    t = t.transpose(1, 0)
+    bb = image[bbmin[0]:bbmax[0], bbmin[1]: bbmax[1]]
 
-    image[bbmin[0]:bbmax[0], bbmin[1]: bbmax[1]] = bcw
-
-    # Loop version ~ 20s
-    # for x in range(int(bbmin[0]), int(bbmax[0]+0.5) + 1):
-    #     for y in range(int(bbmin[1]), int(bbmax[1]+0.5) + 1):
-    #         bc = np.dot(T_inv, ([x, y] - v[-1, :2]))
-    #         bc.resize(3)
-    #         bc[-1] = 1 - bc.sum()
-    #         if np.logical_and(bc >= 0, bc <= 1).all():
-    #             pixel([x, y], image, color)
-    #             # pixel([x, y], image, bc)
+    # bb = bcw
+    bb[t] = color

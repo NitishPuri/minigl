@@ -20,11 +20,13 @@ if __name__ == "__main__":
     b = [500, 50]
     c = [300, 500]
 
-    triangle_line_sweep(a, b, c, image, utils.WHITE)
+    v = np.array([a, b, c])
 
-    triangle(a, b, c, image, utils.RED)
+    triangle_line_sweep(v, image, utils.WHITE)
 
-    utils.saveImage("out/3_triangle_2.jpg", image)
+    triangle(v, image, utils.RED)
+
+    utils.saveImage("out/3_triangle_2_2.jpg", image)
 
     window = MainWindow(width, height)
     window.showImage(image)
