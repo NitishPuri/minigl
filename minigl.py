@@ -91,15 +91,24 @@ def triangle(vert, image, color):
     T = (vert[:-1, :2] - vert[-1, :2]).T
     T_inv = np.linalg.inv(T)
 
+    # Get the bounds
     bbmin = np.array(bbmin, dtype=np.uint64)
     bbmax = np.array(bbmax + 0.5, dtype=np.uint64) + 1
+
+    # Create pixel index arrays in the bounding box
     x = range(bbmin[0], bbmax[0])
     y = range(bbmin[1], bbmax[1])
+
     u, v = np.meshgrid(x, y, sparse=False)
     uv = np.array([u, v])
     uv = uv.transpose(1, 2, 0)
+
+    # Compute barycentric coordinates  for each pixel
     bcd = uv - vert[-1, :2]
     bc = np.tensordot(T_inv, bcd, axes=(1, 2)).transpose(1, 2, 0)
+
+    # Mask for pxels with condition a, b >= 0 and (a+b<=1)
+    # Here, a, b & c are barycentric coordinates.
     t = np.logical_and(np.all(np.greater_equal(
         bc[:, :], 0), axis=-1), np.less_equal(bc.sum(axis=-1), 1))
 
@@ -108,8 +117,10 @@ def triangle(vert, image, color):
     # bcw[:, :, 2] = 1 - bc.sum(axis=-1)
     # bcw = bcw.transpose(1, 0, 2)
 
+    # Get sliced view into the bounding box
     t = t.transpose(1, 0)
     bb = image[bbmin[0]:bbmax[0], bbmin[1]: bbmax[1]]
 
+    # Set color based on mask
     # bb = bcw
     bb[t] = color
