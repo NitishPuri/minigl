@@ -16,7 +16,10 @@ def createImage(width, height):
 
 
 def saveImage(filename, image):
-    image = np.transpose(image, axes=(1, 0, 2))
+    if image.ndim == 3:
+        image = np.transpose(image, axes=(1, 0, 2))
+    else:
+        image = np.transpose(image, axes=(1, 0))
     image = np.flipud(image)
     if image.dtype == np.float64:
         image = (image * 255).astype(np.uint8)
