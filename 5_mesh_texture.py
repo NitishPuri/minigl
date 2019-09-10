@@ -16,8 +16,14 @@ def map_to_screen(v):
 
 if __name__ == "__main__":
     timestart = time.perf_counter()
-    image = utils.createImage(width, height)
+    image = utils.createImage(width, height, 3, np.uint8)
     m = Model("obj/african_head.obj")
+
+    texture = utils.readImage("obj/african_head_diffuse.tga")
+    texture = np.flipud(texture)
+    texture = texture.transpose(1, 0, 2)
+    print("texture.shape = {}, dtype = {}".format(texture.shape, texture.dtype))
+
     timeend = time.perf_counter()
     print("Read model :: ", (timeend - timestart), "s")
 
@@ -25,22 +31,27 @@ if __name__ == "__main__":
 
     timestart = time.perf_counter()
     z_buffer = np.zeros((width, height))
-    for i, f in enumerate(m.faces):
+    for f in m.faces:
         v = np.array([map_to_screen(m.vertices[f[i][0]]) for i in range(3)])
+        t = np.array([m.tex[f[i][1]] for i in range(3)]).T
 
-        normal = np.cross(v[2] - v[0], v[1] - v[0])
-        normal /= np.linalg.norm(normal)
-        intensity = abs(np.dot(normal, light_dir))
+        # texture mapping
+        def shader(bc):
+            tc = np.tensordot(t, bc, axes=(1, 2))
+            tc = tc.transpose(1, 2, 0) * np.array(texture.shape[:2])
+            tc = np.clip(tc.astype(np.uint32), [0, 0], [
+                         texture.shape[0]-1,  texture.shape[1]-1])
+            tc = tc.transpose(2, 0, 1)
+            return texture[tc.tolist()]
 
-        # triangle_line_sweep(v, image, utils.WHITE * intensity)
-        triangle(v, image, z_buffer, lambda bc: utils.WHITE * intensity)
+        triangle(v, image, z_buffer, shader)
 
     timeend = time.perf_counter()
     print("Render image :: ", (timeend - timestart), "s")
 
     timestart = time.perf_counter()
-    utils.saveImage("out/4_mesh_light.jpg", image)
-    utils.saveImage("out/4_mesh_light_zbuffer.jpg", z_buffer / depth)
+    utils.saveImage("out/5_mesh_tex.jpg", image)
+    utils.saveImage("out/5_mesh_tex_zbuffer.jpg", z_buffer / depth)
     timeend = time.perf_counter()
     print("Save to file :: ", (timeend - timestart), "s")
 

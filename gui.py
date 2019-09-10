@@ -24,7 +24,8 @@ class MainWindow:
     def showImage(self, image):
         image = np.transpose(image, axes=(1, 0, 2))
         image = np.flipud(image)
-        image = (image * 255).astype(np.uint16)
+        if image.dtype == np.float64:
+            image = (image * 255).astype(np.uint8)
 
         im = Image.frombytes('RGB', (image.shape[1],
                                      image.shape[0]), image.astype('b').tostring())
