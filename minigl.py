@@ -84,18 +84,18 @@ def triangle(vert, image, z_buffer=None, shader=None):
     """
     Triangle rasterization using barycentric coordinates
     """
-    if shader is None:
-        shader = [1, 1, 1]
-    bbmin = vert.min(axis=0)
-    bbmax = vert.max(axis=0)
+    bbmin = vert[:, 0:2].min(axis=0)
+    bbmax = vert[:, 0:2].max(axis=0)
+    bbmin = bbmin.clip(0, [image.shape[0]-1, image.shape[1]-1])
+    bbmax = bbmax.clip(0, [image.shape[0]-1, image.shape[1]-1])
 
     # precompute matrix for finding barycentric coordinates.
     T = (vert[:-1, :2] - vert[-1, :2]).T
     T_inv = np.linalg.inv(T)
 
     # Get the bounds
-    bbmin = np.array(bbmin, dtype=np.uint64)
-    bbmax = np.array(bbmax + 0.5, dtype=np.uint64) + 1
+    bbmin = np.array(bbmin, dtype=np.uint32)
+    bbmax = np.array(bbmax + 0.5, dtype=np.uint32) + 1
 
     # Create pixel index arrays in the bounding box
     x = range(bbmin[0], bbmax[0])
@@ -135,5 +135,28 @@ def triangle(vert, image, z_buffer=None, shader=None):
     # Get sliced view into the bounding box and set the color based on mask.
     bb = image[bbmin[0]:bbmax[0], bbmin[1]: bbmax[1]]
 
-    sh = shader(bcw)
-    bb[:] = np.where(t[:, :,  np.newaxis], sh, bb)
+    if shader is None:
+        # Apply barycentric coordinates as color.
+        bb[:] = np.where(t[:, :,  np.newaxis], np.array(
+            bcw * 255, dtype=np.uint8), bb)
+    else:
+        sh = shader(bcw)
+        bb[:] = np.where(t[:, :,  np.newaxis], sh, bb)
+
+
+def projection(coeff):
+    p = np.identity(4)
+    p[3, 2] = -1/coeff
+    return p
+
+
+def viewport(x, y, w, h, depth):
+    m = np.identity(4)
+    m[0, 3] = x + w / 2.
+    m[1, 3] = y + h / 2.
+    m[2, 3] = depth / 2.
+
+    m[0, 0] = w / 2.
+    m[1, 1] = h / 2.
+    m[2, 2] = depth / 2.
+    return m
