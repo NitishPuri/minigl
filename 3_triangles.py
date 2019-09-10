@@ -24,7 +24,7 @@ if __name__ == "__main__":
 
     triangle_line_sweep(v, image, utils.WHITE)
 
-    triangle(v, image, utils.RED)
+    triangle(v, image, shader=lambda bc: utils.RED)
 
     utils.saveImage("out/3_triangle_2_2.jpg", image)
 

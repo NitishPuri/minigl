@@ -31,7 +31,7 @@ if __name__ == "__main__":
         intensity = abs(np.dot(normal, light_dir))
 
         # triangle_line_sweep(v, image, utils.WHITE * intensity)
-        triangle(v, image, utils.WHITE * intensity)
+        triangle(v, image, shader=lambda bc: utils.WHITE * intensity)
 
     timeend = time.perf_counter()
     print("Render image :: ", (timeend - timestart), "s")

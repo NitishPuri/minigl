@@ -24,7 +24,7 @@ if __name__ == "__main__":
     for i, f in enumerate(m.faces):
         v = np.array([map_to_screen(m.vertices[f[i][0]]) for i in range(3)])
         # triangle_line_sweep(v, image, utils.RANDOM())
-        triangle(v, image, utils.RANDOM())
+        triangle(v, image, shader=lambda bc: utils.RANDOM())
     timeend = time.perf_counter()
     print("Render image :: ", (timeend - timestart), "s")
 

@@ -80,10 +80,12 @@ def barycentric(a, b, c, p):
     return bc
 
 
-def triangle(vert, image, z_buffer, shader):
+def triangle(vert, image, z_buffer=None, shader=None):
     """
     Triangle rasterization using barycentric coordinates
     """
+    if shader is None:
+        shader = [1, 1, 1]
     bbmin = vert.min(axis=0)
     bbmax = vert.max(axis=0)
 
@@ -119,24 +121,19 @@ def triangle(vert, image, z_buffer, shader):
     bcw[:, :, :2] = bc
     bcw[:, :, 2] = 1 - bc.sum(axis=-1)
     bcw = bcw.transpose(1, 0, 2)
-    # bcw[np.logical_not(t)] = 0
 
-    # Compute the pixel depth from barycentric coordinates
-    bc_z = np.tensordot(vert[:, 2], bcw, axes=(0, 2))
+    if z_buffer is not None:
+        # Compute the pixel depth from barycentric coordinates
+        bc_z = np.tensordot(vert[:, 2], bcw, axes=(0, 2))
 
-    # Update the mask and z_buffer
-    bb_z_buffer = z_buffer[bbmin[0]:bbmax[0], bbmin[1]: bbmax[1]]
-    t_z = (bb_z_buffer < bc_z)
-    t = np.logical_and(t, t_z)
-    bb_z_buffer[:] = np.where(t, bc_z, bb_z_buffer)
+        # Update the mask and z_buffer
+        bb_z_buffer = z_buffer[bbmin[0]:bbmax[0], bbmin[1]: bbmax[1]]
+        t_z = (bb_z_buffer < bc_z)
+        t = np.logical_and(t, t_z)
+        bb_z_buffer[:] = np.where(t, bc_z, bb_z_buffer)
 
     # Get sliced view into the bounding box and set the color based on mask.
     bb = image[bbmin[0]:bbmax[0], bbmin[1]: bbmax[1]]
-    # bb[t] = bcw
-    # bb[t] = color
-    # bb[t] = shader(bcw)
+
     sh = shader(bcw)
-    # print("t.shape = ", t.shape)
-    # print("sh.shape = ", sh.shape)
-    # print("bb.shape = ", bb.shape)
     bb[:] = np.where(t[:, :,  np.newaxis], sh, bb)

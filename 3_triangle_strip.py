@@ -26,7 +26,8 @@ if __name__ == "__main__":
         side = side % [width, height]
         # line(start, end, image, utils.WHITE)
         i = i % 40
-        triangle(start, end, side, image, [i*6, (40-i)*4, i*2])
+        triangle_line_sweep(np.array([start, end, side]), image, [
+                            i*6, (40-i)*4, i*2])
         start = end
 
     utils.saveImage("out/3_triangle_strip.jpg", image)
