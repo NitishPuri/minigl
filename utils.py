@@ -11,11 +11,14 @@ WHITE = np.array([1, 1, 1])
 def RANDOM(): return np.random.randint(0, 255, (1, 3))
 
 
-def createImage(width, height):
-    return np.zeros((width, height, 3))
+def createImage(width, height, depth=3, dtype=np.float64):
+    return np.zeros((width, height, depth)).astype(dtype)
 
 
 def saveImage(filename, image):
+    print("Saving file :: {}".format(filename))
+    print("Max :: {}, Min :: {}, type :: {}".format(
+        image.max(), image.min(), image.dtype))
     if image.ndim == 3:
         image = np.transpose(image, axes=(1, 0, 2))
     else:
@@ -24,3 +27,7 @@ def saveImage(filename, image):
     if image.dtype == np.float64:
         image = (image * 255).astype(np.uint8)
     io.imsave(filename, image)
+
+
+def readImage(filename):
+    return io.imread(filename)
